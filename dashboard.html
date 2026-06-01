@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Essentials | Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#020818;--deep:#0a0f1e;--card:#0f1628;--card2:#141c32;
+  --pu:#6c3fff;--pu2:#9b59f7;--vi:#b48bff;--ind:#3a1cff;
+  --green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
+  --wh:#fff;--mu:rgba(255,255,255,.45);--so:rgba(255,255,255,.72);
+  --border:rgba(255,255,255,.07);--border2:rgba(155,89,247,.25);
+  --fd:'Syne',sans-serif;--fb:'Outfit',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--wh);font-family:var(--fb);min-height:100vh;overflow-x:hidden}
+
+/* BG GLOW */
+.bg-glow{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 50% at 80% 10%,rgba(58,28,255,.12),transparent 60%),
+             radial-gradient(ellipse 50% 40% at 10% 90%,rgba(108,63,255,.08),transparent 60%)}
+
+/* ══ AUTH SCREEN ════════════════════════════════════════════════ */
+#auth-screen{
+  position:fixed;inset:0;z-index:50;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--navy);
+}
+.auth-box{
+  background:var(--card);border:1px solid var(--border2);border-radius:24px;
+  padding:48px 40px;width:100%;max-width:420px;margin:20px;
+  position:relative;
+  box-shadow:0 0 80px rgba(108,63,255,.12);
+}
+.auth-box::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:50%;height:2px;background:linear-gradient(90deg,transparent,var(--pu2),transparent)}
+.auth-logo{font-family:var(--fd);font-size:1.5rem;font-weight:800;color:var(--wh);text-align:center;margin-bottom:8px}
+.auth-logo span{color:var(--pu2)}
+.auth-subtitle{font-size:.85rem;color:var(--mu);text-align:center;margin-bottom:36px}
+
+.tabs{display:flex;background:rgba(255,255,255,.04);border-radius:10px;padding:4px;margin-bottom:28px}
+.tab-btn{flex:1;padding:9px;border:none;background:transparent;color:var(--mu);
+  font-family:var(--fb);font-size:.82rem;font-weight:500;border-radius:7px;cursor:pointer;transition:all .2s}
+.tab-btn.active{background:var(--pu);color:var(--wh);box-shadow:0 2px 12px rgba(108,63,255,.4)}
+
+.form-group{margin-bottom:18px}
+label{display:block;font-size:.78rem;font-weight:500;color:var(--so);margin-bottom:7px;letter-spacing:.03em}
+input[type=text],input[type=email],input[type=password]{
+  width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:10px;padding:13px 16px;color:var(--wh);font-family:var(--fb);font-size:.9rem;
+  outline:none;transition:border-color .2s;
+}
+input:focus{border-color:rgba(155,89,247,.5);background:rgba(108,63,255,.06)}
+input::placeholder{color:var(--mu)}
+
+.btn-main{
+  width:100%;background:linear-gradient(135deg,var(--ind),var(--pu),var(--pu2));
+  color:var(--wh);font-family:var(--fb);font-size:.9rem;font-weight:600;
+  padding:15px;border-radius:12px;border:none;cursor:pointer;
+  box-shadow:0 8px 28px rgba(108,63,255,.4);transition:all .25s;
+  letter-spacing:.02em;margin-top:4px;
+}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(108,63,255,.6)}
+.btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.auth-msg{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:.83rem;text-align:center;display:none}
+.auth-msg.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+.auth-msg.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#86efac}
+
+/* ══ DASHBOARD ══════════════════════════════════════════════════ */
+#dashboard{display:none;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:240px;
+  background:var(--card);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:40;
+  transition:transform .3s;
+}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid var(--border)}
+.sidebar-logo span{font-family:var(--fd);font-size:1.25rem;font-weight:800;color:var(--wh)}
+.sidebar-logo span em{font-style:normal;color:var(--pu2)}
+.sidebar-company{font-size:.75rem;color:var(--mu);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+nav.sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;border-radius:10px;cursor:pointer;
+  font-size:.85rem;font-weight:500;color:var(--mu);
+  transition:all .2s;border:1px solid transparent;
+  background:transparent;width:100%;text-align:left;
+}
+.nav-item:hover{color:var(--wh);background:rgba(255,255,255,.05)}
+.nav-item.active{color:var(--wh);background:rgba(108,63,255,.15);border-color:rgba(155,89,247,.2)}
+.nav-item .icon{font-size:1.1rem;flex-shrink:0}
+
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border)}
+.btn-logout{
+  display:flex;align-items:center;gap:10px;
+  width:100%;padding:10px 14px;border-radius:10px;
+  font-size:.82rem;color:var(--mu);background:transparent;border:none;cursor:pointer;
+  transition:all .2s;
+}
+.btn-logout:hover{color:var(--red);background:rgba(239,68,68,.06)}
+
+/* MAIN CONTENT */
+.main{margin-left:240px;padding:40px;min-height:100vh;position:relative;z-index:1}
+
+/* TOP BAR */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:36px}
+.topbar h1{font-family:var(--fd);font-size:1.6rem;font-weight:800;letter-spacing:-.02em}
+.status-badge{display:inline-flex;align-items:center;gap:7px;
+  padding:7px 16px;border-radius:100px;font-size:.78rem;font-weight:600}
+.status-badge.connected{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+.status-badge.disconnected{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+.status-badge.pending{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:#fcd34d}
+.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:dotPulse 2s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;margin-bottom:20px}
+.card-title{font-family:var(--fd);font-size:1rem;font-weight:800;color:var(--wh);margin-bottom:6px;letter-spacing:-.01em}
+.card-desc{font-size:.83rem;color:var(--mu);font-weight:300;margin-bottom:22px;line-height:1.55}
+
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
+.stat-card .num{font-family:var(--fd);font-size:2rem;font-weight:800;color:var(--wh);margin-bottom:4px}
+.stat-card .lbl{font-size:.78rem;color:var(--mu);font-weight:300}
+
+/* QR BOX */
+.qr-container{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px;background:rgba(255,255,255,.03);border:1px solid var(--border);
+  border-radius:16px;min-height:280px;
+}
+.qr-container img{width:220px;height:220px;border-radius:12px;background:white;padding:10px}
+.qr-placeholder{
+  width:220px;height:220px;border-radius:12px;
+  background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.5rem;
+}
+.qr-msg{font-size:.82rem;color:var(--mu);text-align:center;margin-top:14px;max-width:240px;line-height:1.55}
+
+/* PDF UPLOAD */
+.upload-zone{
+  border:2px dashed rgba(155,89,247,.3);border-radius:14px;
+  padding:36px;text-align:center;cursor:pointer;transition:all .25s;
+  background:rgba(108,63,255,.04);
+}
+.upload-zone:hover,.upload-zone.dragover{
+  border-color:rgba(155,89,247,.7);background:rgba(108,63,255,.1);
+}
+.upload-zone .icon{font-size:2.2rem;margin-bottom:12px}
+.upload-zone p{font-size:.88rem;color:var(--so);margin-bottom:6px}
+.upload-zone small{font-size:.75rem;color:var(--mu)}
+#pdf-input{display:none}
+
+/* PROGRESS */
+.progress-wrap{margin-top:14px;display:none}
+.progress-bar{height:4px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--ind),var(--pu2));
+  border-radius:100px;transition:width .3s;width:0%}
+.progress-label{font-size:.75rem;color:var(--mu);margin-top:6px}
+
+/* FORM FIELDS */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{
+  width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:10px;padding:13px 16px;color:var(--wh);font-family:var(--fb);font-size:.88rem;
+  outline:none;resize:vertical;min-height:90px;transition:border-color .2s;line-height:1.55;
+}
+textarea:focus{border-color:rgba(155,89,247,.5);background:rgba(108,63,255,.06)}
+textarea::placeholder{color:var(--mu)}
+select{
+  width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:10px;padding:13px 16px;color:var(--wh);font-family:var(--fb);font-size:.88rem;
+  outline:none;cursor:pointer;
+}
+select option{background:var(--card)}
+
+.btn-save{
+  background:linear-gradient(135deg,var(--pu),var(--pu2));
+  color:var(--wh);font-family:var(--fb);font-size:.85rem;font-weight:600;
+  padding:12px 28px;border-radius:10px;border:none;cursor:pointer;
+  box-shadow:0 4px 18px rgba(108,63,255,.35);transition:all .25s;
+}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(108,63,255,.55)}
+.btn-save:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.btn-danger{
+  background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
+  color:#fca5a5;font-family:var(--fb);font-size:.82rem;font-weight:500;
+  padding:10px 22px;border-radius:10px;cursor:pointer;transition:all .25s;
+}
+.btn-danger:hover{background:rgba(239,68,68,.2)}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:28px;right:28px;
+  background:var(--card2);border:1px solid var(--border2);border-radius:12px;
+  padding:14px 20px;font-size:.85rem;color:var(--wh);
+  box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:999;
+  transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.16,1,.3,1);
+  max-width:320px;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(34,197,94,.4)}
+.toast.error{border-color:rgba(239,68,68,.4)}
+
+/* CONVERSATIONS */
+.conv-list{display:flex;flex-direction:column;gap:10px}
+.conv-item{
+  background:rgba(255,255,255,.03);border:1px solid var(--border);
+  border-radius:12px;padding:16px 18px;
+}
+.conv-num{font-size:.75rem;color:var(--mu);margin-bottom:6px}
+.conv-bubble{display:flex;flex-direction:column;gap:8px}
+.msg{padding:10px 14px;border-radius:10px;font-size:.83rem;line-height:1.5;max-width:85%}
+.msg.user{background:rgba(255,255,255,.06);align-self:flex-start}
+.msg.bot{background:rgba(108,63,255,.15);border:1px solid rgba(155,89,247,.2);align-self:flex-end}
+.conv-time{font-size:.7rem;color:rgba(255,255,255,.25);margin-top:4px;text-align:right}
+.empty-state{text-align:center;padding:48px 20px;color:var(--mu)}
+.empty-state .icon{font-size:2.5rem;margin-bottom:12px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:20px}
+  .stats-row{grid-template-columns:1fr}
+  .field-row{grid-template-columns:1fr}
+  .menu-toggle{display:flex}
+}
+.menu-toggle{
+  display:none;position:fixed;top:16px;left:16px;z-index:50;
+  width:40px;height:40px;background:var(--card);border:1px solid var(--border);
+  border-radius:10px;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1.1rem;
+}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<!-- ══ AUTH SCREEN ══════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">Essentials<span>.</span></div>
+    <div class="auth-subtitle">Panel de administración de tu bot</div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">Iniciar Sesión</button>
+      <button class="tab-btn" onclick="switchTab('registro')">Registrarse</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="tab-login">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="tu@email.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••">
+      </div>
+      <button class="btn-main" onclick="login()">Entrar al Dashboard</button>
+      <div class="auth-msg" id="login-msg"></div>
+    </div>
+
+    <!-- REGISTRO -->
+    <div id="tab-registro" style="display:none">
+      <div class="form-group">
+        <label>Nombre de tu negocio</label>
+        <input type="text" id="reg-nombre" placeholder="Ej: Restaurante El Buen Sabor">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="tu@email.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres">
+      </div>
+      <button class="btn-main" onclick="registro()">Crear mi cuenta</button>
+      <div class="auth-msg" id="reg-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ════════════════════════════════════════════════ -->
+<div id="dashboard">
+
+  <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span>Essentials<em>.</em></span>
+      <div class="sidebar-company" id="sidebar-company">Cargando...</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showPage('inicio')">
+        <span class="icon">🏠</span> Inicio
+      </button>
+      <button class="nav-item" onclick="showPage('whatsapp')">
+        <span class="icon">📱</span> Vincular WhatsApp
+      </button>
+      <button class="nav-item" onclick="showPage('catalogo')">
+        <span class="icon">📄</span> Catálogo / PDF
+      </button>
+      <button class="nav-item" onclick="showPage('config')">
+        <span class="icon">⚙️</span> Configurar Bot
+      </button>
+      <button class="nav-item" onclick="showPage('conversaciones')">
+        <span class="icon">💬</span> Conversaciones
+      </button>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="logout()">
+        <span>🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <h1 id="page-title">Inicio</h1>
+      <div class="status-badge disconnected" id="wa-status-badge">
+        <span class="status-dot"></span>
+        <span id="wa-status-text">Desconectado</span>
+      </div>
+    </div>
+
+    <!-- ── PÁGINA: INICIO ── -->
+    <div class="page active" id="page-inicio">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="num" id="stat-convs">—</div>
+          <div class="lbl">Conversaciones hoy</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="stat-status">—</div>
+          <div class="lbl">Estado del bot</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="stat-pdf">—</div>
+          <div class="lbl">Catálogo cargado</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🚀 Primeros pasos</div>
+        <div class="card-desc">Sigue este orden para activar tu asistente virtual:</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="step-item" id="step1" style="display:flex;gap:12px;align-items:center;padding:14px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--border)">
+            <span style="font-size:1.3rem">📄</span>
+            <div>
+              <div style="font-size:.88rem;font-weight:600;color:var(--wh);margin-bottom:2px">Sube tu catálogo o menú en PDF</div>
+              <div style="font-size:.78rem;color:var(--mu)">La IA aprenderá todo sobre tu negocio</div>
+            </div>
+            <span id="step1-check" style="margin-left:auto;font-size:1.1rem">⬜</span>
+          </div>
+          <div class="step-item" style="display:flex;gap:12px;align-items:center;padding:14px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--border)">
+            <span style="font-size:1.3rem">⚙️</span>
+            <div>
+              <div style="font-size:.88rem;font-weight:600;color:var(--wh);margin-bottom:2px">Configura el tono y saludo del bot</div>
+              <div style="font-size:.78rem;color:var(--mu)">Personaliza cómo atiende a tus clientes</div>
+            </div>
+            <span id="step2-check" style="margin-left:auto;font-size:1.1rem">⬜</span>
+          </div>
+          <div class="step-item" style="display:flex;gap:12px;align-items:center;padding:14px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--border)">
+            <span style="font-size:1.3rem">📱</span>
+            <div>
+              <div style="font-size:.88rem;font-weight:600;color:var(--wh);margin-bottom:2px">Vincula tu WhatsApp</div>
+              <div style="font-size:.78rem;color:var(--mu)">Escanea el QR desde tu celular</div>
+            </div>
+            <span id="step3-check" style="margin-left:auto;font-size:1.1rem">⬜</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PÁGINA: WHATSAPP ── -->
+    <div class="page" id="page-whatsapp">
+      <div class="card">
+        <div class="card-title">📱 Vincular WhatsApp</div>
+        <div class="card-desc">Escanea el código QR con tu WhatsApp para activar el bot. El número que vincules será el que atienda a tus clientes.</div>
+
+        <div class="qr-container" id="qr-container">
+          <div class="qr-placeholder" id="qr-placeholder">📱</div>
+          <img id="qr-img" style="display:none" alt="QR WhatsApp">
+          <div class="qr-msg" id="qr-msg">Haz clic en "Generar QR" para comenzar</div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap">
+          <button class="btn-save" id="btn-generar-qr" onclick="generarQR()">Generar QR</button>
+          <button class="btn-danger" id="btn-desconectar" onclick="desconectarWA()" style="display:none">Desconectar</button>
+        </div>
+
+        <div style="margin-top:20px;padding:14px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:10px">
+          <p style="font-size:.8rem;color:#fcd34d;line-height:1.55">
+            ⚠️ <strong>Importante:</strong> El número de WhatsApp que vincules debe tener la app instalada en el celular.
+            Mientras el bot esté activo, puedes seguir usando WhatsApp normalmente.
+            Si reinicias el servidor, deberás volver a escanear el QR.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PÁGINA: CATÁLOGO / PDF ── -->
+    <div class="page" id="page-catalogo">
+      <div class="card">
+        <div class="card-title">📄 Subir Catálogo o Menú</div>
+        <div class="card-desc">Sube el PDF con toda la información de tu negocio: precios, productos, horarios, políticas. La IA lo leerá y aprenderá todo.</div>
+
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('pdf-input').click()">
+          <div class="icon">📎</div>
+          <p>Arrastra tu PDF aquí o haz clic para seleccionarlo</p>
+          <small>Máximo 10 MB · Solo archivos PDF</small>
+          <input type="file" id="pdf-input" accept=".pdf" onchange="subirPDF(this.files[0])">
+        </div>
+
+        <div class="progress-wrap" id="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="progress-label" id="progress-label">Procesando con IA...</div>
+        </div>
+
+        <div id="pdf-resultado" style="display:none;margin-top:18px">
+          <div style="padding:16px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.25);border-radius:12px">
+            <div style="font-size:.85rem;font-weight:600;color:#4ade80;margin-bottom:8px">✅ PDF procesado exitosamente</div>
+            <div id="pdf-preview" style="font-size:.78rem;color:var(--mu);line-height:1.6;white-space:pre-wrap;max-height:200px;overflow-y:auto"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="pdf-actual-card" style="display:none">
+        <div class="card-title">📋 Catálogo actual</div>
+        <div class="card-desc">Nombre: <span id="pdf-nombre" style="color:var(--vi)">—</span></div>
+        <button class="btn-save" onclick="showPage('catalogo')">Actualizar PDF</button>
+      </div>
+    </div>
+
+    <!-- ── PÁGINA: CONFIGURACIÓN ── -->
+    <div class="page" id="page-config">
+      <div class="card">
+        <div class="card-title">⚙️ Personalizar el Bot</div>
+        <div class="card-desc">Define cómo quieres que tu asistente se comunique con los clientes.</div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="form-group" style="margin:0">
+            <label>Nombre del asistente</label>
+            <input type="text" id="cfg-nombre-bot" placeholder="Ej: Sofia, Carlos, Asistente...">
+          </div>
+
+          <div class="form-group" style="margin:0">
+            <label>Mensaje de bienvenida</label>
+            <textarea id="cfg-saludo" placeholder="Ej: ¡Hola! 👋 Soy Sofia, asistente virtual de [tu negocio]. ¿En qué te puedo ayudar hoy?"></textarea>
+          </div>
+
+          <div class="form-group" style="margin:0">
+            <label>Tono de comunicación</label>
+            <select id="cfg-tono">
+              <option value="amigable y profesional">Amigable y profesional</option>
+              <option value="formal y corporativo">Formal y corporativo</option>
+              <option value="casual y cercano">Casual y cercano</option>
+              <option value="entusiasta y energético">Entusiasta y energético</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin:0">
+            <label>Mensaje cuando el cliente pide hablar con una persona</label>
+            <textarea id="cfg-humano" placeholder="Ej: Claro, te comunico con un asesor en breve 🙌 ¿Hay algo más en que pueda ayudarte?"></textarea>
+          </div>
+
+          <button class="btn-save" onclick="guardarConfig()">Guardar configuración</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PÁGINA: CONVERSACIONES ── -->
+    <div class="page" id="page-conversaciones">
+      <div class="card">
+        <div class="card-title">💬 Últimas conversaciones</div>
+        <div class="card-desc">Revisa lo que tus clientes están preguntando. Se actualizan en tiempo real.</div>
+        <button class="btn-save" onclick="cargarConversaciones()" style="margin-bottom:18px">Actualizar</button>
+        <div class="conv-list" id="conv-list">
+          <div class="empty-state">
+            <div class="icon">💬</div>
+            <p>Aún no hay conversaciones.<br>Vincula tu WhatsApp para empezar.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// CONFIGURACIÓN — cambia esta URL por la de tu servidor Render
+// ════════════════════════════════════════════════════════════
+const API = 'http://84.46.254.80:3000';
+
+// ── Estado global ────────────────────────────────────────────
+let session = {
+  token:     localStorage.getItem('es_token'),
+  empresaId: localStorage.getItem('es_id'),
+  nombre:    localStorage.getItem('es_nombre'),
+};
+let sseSource = null;
+
+// ── Al cargar la página ──────────────────────────────────────
+window.addEventListener('load', () => {
+  if (session.token) {
+    mostrarDashboard();
+  }
+
+  // Drag & drop en zona de subida
+  const zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('dragover') });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file?.type === 'application/pdf') subirPDF(file);
+    else toast('Solo se aceptan archivos PDF', 'error');
+  });
+});
+
+// ══ AUTH ═════════════════════════════════════════════════════
+function switchTab(tab) {
+  document.getElementById('tab-login').style.display    = tab === 'login'    ? 'block' : 'none';
+  document.getElementById('tab-registro').style.display = tab === 'registro' ? 'block' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'registro' && i === 1));
+  });
+}
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const msg   = document.getElementById('login-msg');
+
+  if (!email || !pass) return showMsg(msg, 'Completa todos los campos', 'error');
+
+  const btn = document.querySelector('#tab-login .btn-main');
+  btn.disabled = true; btn.textContent = 'Entrando...';
+
+  try {
+    const res  = await fetch(`${API}/api/auth/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    guardarSesion(data);
+    mostrarDashboard();
+  } catch (err) {
+    showMsg(msg, err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar al Dashboard';
+  }
+}
+
+async function registro() {
+  const nombre = document.getElementById('reg-nombre').value.trim();
+  const email  = document.getElementById('reg-email').value.trim();
+  const pass   = document.getElementById('reg-pass').value;
+  const msg    = document.getElementById('reg-msg');
+
+  if (!nombre || !email || !pass) return showMsg(msg, 'Completa todos los campos', 'error');
+
+  const btn = document.querySelector('#tab-registro .btn-main');
+  btn.disabled = true; btn.textContent = 'Creando cuenta...';
+
+  try {
+    const res  = await fetch(`${API}/api/auth/registro`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass, nombreEmpresa: nombre }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    showMsg(msg, '¡Cuenta creada! Redirigiendo...', 'success');
+    guardarSesion(data);
+    setTimeout(mostrarDashboard, 1200);
+  } catch (err) {
+    showMsg(msg, err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Crear mi cuenta';
+  }
+}
+
+function guardarSesion(data) {
+  session = { token: data.token, empresaId: data.empresaId, nombre: data.nombre };
+  localStorage.setItem('es_token', data.token);
+  localStorage.setItem('es_id',    data.empresaId);
+  localStorage.setItem('es_nombre', data.nombre);
+}
+
+function logout() {
+  localStorage.clear();
+  session = {};
+  if (sseSource) { sseSource.close(); sseSource = null; }
+  document.getElementById('dashboard').style.display    = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+// ══ DASHBOARD ════════════════════════════════════════════════
+async function mostrarDashboard() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display   = 'block';
+  document.getElementById('sidebar-company').textContent = session.nombre || 'Tu empresa';
+
+  await cargarPerfil();
+  await actualizarEstadoWA();
+}
+
+async function cargarPerfil() {
+  try {
+    const data = await api('/api/empresa/perfil');
+    const e = data.empresa;
+
+    // Stats
+    document.getElementById('stat-pdf').textContent    = e.pdfNombre ? '✅' : '❌';
+    document.getElementById('stat-status').textContent = e.whatsappStatus === 'connected' ? '🟢' : '🔴';
+
+    // Steps
+    document.getElementById('step1-check').textContent = e.contexto    ? '✅' : '⬜';
+    document.getElementById('step2-check').textContent = e.saludo      ? '✅' : '⬜';
+    document.getElementById('step3-check').textContent = e.whatsappStatus === 'connected' ? '✅' : '⬜';
+
+    // Config form
+    document.getElementById('cfg-nombre-bot').value = e.nombreBot     || '';
+    document.getElementById('cfg-saludo').value     = e.saludo        || '';
+    document.getElementById('cfg-tono').value       = e.tono          || 'amigable y profesional';
+    document.getElementById('cfg-humano').value     = e.mensajeHumano || '';
+
+    // PDF card
+    if (e.pdfNombre) {
+      document.getElementById('pdf-actual-card').style.display = 'block';
+      document.getElementById('pdf-nombre').textContent = e.pdfNombre;
+    }
+
+    actualizarStatusBadge(e.whatsappStatus);
+  } catch (err) {
+    console.error('Error cargando perfil:', err);
+  }
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+
+  const idx = ['inicio','whatsapp','catalogo','config','conversaciones'].indexOf(name);
+  document.querySelectorAll('.nav-item')[idx]?.classList.add('active');
+
+  const titles = { inicio:'Inicio', whatsapp:'Vincular WhatsApp',
+    catalogo:'Catálogo / PDF', config:'Configurar Bot', conversaciones:'Conversaciones' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+
+  if (name === 'conversaciones') cargarConversaciones();
+
+  // Cerrar sidebar en móvil
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ══ WHATSAPP ════════════════════════════════════════════════
+async function generarQR() {
+  const btn = document.getElementById('btn-generar-qr');
+  btn.disabled = true; btn.textContent = 'Iniciando...';
+  document.getElementById('qr-msg').textContent = 'Conectando con el servidor...';
+
+  try {
+    await api('/api/empresa/whatsapp/iniciar', 'POST');
+
+    document.getElementById('qr-msg').textContent = 'Generando QR, espera un momento...';
+
+    // Conectar SSE para recibir QR en tiempo real
+    if (sseSource) sseSource.close();
+
+    sseSource = new EventSource(`${API}/api/empresa/whatsapp/qr`, {
+      headers: { Authorization: `Bearer ${session.token}` },
+    });
+
+    // Nota: EventSource estándar no soporta headers en todos los browsers
+    // Usamos fetch con SSE como alternativa:
+    sseSource.close();
+    await escucharQR();
+
+  } catch (err) {
+    toast('Error: ' + err.message, 'error');
+    btn.disabled = false; btn.textContent = 'Generar QR';
+  }
+}
+
+async function escucharQR() {
+  const btn = document.getElementById('btn-generar-qr');
+
+  const response = await fetch(`${API}/api/empresa/whatsapp/qr`, {
+    headers: { 'Authorization': `Bearer ${session.token}` },
+  });
+
+  const reader   = response.body.getReader();
+  const decoder  = new TextDecoder();
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    const text = decoder.decode(value);
+    const lines = text.split('\n').filter(l => l.startsWith('data:'));
+
+    for (const line of lines) {
+      try {
+        const data = JSON.parse(line.replace('data: ', ''));
+
+        if (data.type === 'qr') {
+          document.getElementById('qr-placeholder').style.display = 'none';
+          document.getElementById('qr-img').style.display = 'block';
+          document.getElementById('qr-img').src = data.qr;
+          document.getElementById('qr-msg').textContent = 'Escanea este QR con WhatsApp → Dispositivos vinculados → Vincular dispositivo';
+          btn.disabled = false; btn.textContent = 'Regenerar QR';
+        }
+
+        if (data.type === 'connected') {
+          document.getElementById('qr-img').style.display  = 'none';
+          document.getElementById('qr-placeholder').style.display = 'flex';
+          document.getElementById('qr-placeholder').textContent = '✅';
+          document.getElementById('qr-msg').textContent = '¡WhatsApp conectado! Tu bot ya está atendiendo clientes.';
+          document.getElementById('btn-desconectar').style.display = 'inline-block';
+          btn.textContent = 'Reconectar';
+          actualizarStatusBadge('connected');
+          toast('¡WhatsApp conectado exitosamente! 🎉', 'success');
+          return;
+        }
+      } catch {}
+    }
+  }
+}
+
+async function desconectarWA() {
+  if (!confirm('¿Desconectar WhatsApp? El bot dejará de responder.')) return;
+  try {
+    await api('/api/empresa/whatsapp/desconectar', 'POST');
+    actualizarStatusBadge('disconnected');
+    document.getElementById('btn-desconectar').style.display = 'none';
+    document.getElementById('qr-placeholder').textContent = '📱';
+    document.getElementById('qr-msg').textContent = 'WhatsApp desconectado';
+    toast('WhatsApp desconectado');
+  } catch (err) {
+    toast('Error: ' + err.message, 'error');
+  }
+}
+
+async function actualizarEstadoWA() {
+  try {
+    const data = await api('/api/empresa/whatsapp/estado');
+    actualizarStatusBadge(data.status);
+    document.getElementById('stat-status').textContent =
+      data.status === 'connected' ? '🟢 Activo' : '🔴 Inactivo';
+    if (data.status === 'connected') {
+      document.getElementById('btn-desconectar').style.display = 'inline-block';
+    }
+  } catch {}
+}
+
+function actualizarStatusBadge(status) {
+  const badge = document.getElementById('wa-status-badge');
+  const text  = document.getElementById('wa-status-text');
+  badge.className = 'status-badge';
+  const map = {
+    connected:    ['connected',    '🟢 Conectado'],
+    disconnected: ['disconnected', '🔴 Desconectado'],
+    qr_ready:     ['pending',      '🟡 Esperando QR'],
+    initializing: ['pending',      '🟡 Iniciando...'],
+    not_started:  ['disconnected', '⚪ No iniciado'],
+  };
+  const [cls, txt] = map[status] || ['disconnected', status];
+  badge.classList.add(cls);
+  text.textContent = txt;
+}
+
+// ══ PDF ═════════════════════════════════════════════════════
+async function subirPDF(file) {
+  if (!file) return;
+  if (file.type !== 'application/pdf') return toast('Solo se aceptan archivos PDF', 'error');
+
+  const wrap     = document.getElementById('progress-wrap');
+  const fill     = document.getElementById('progress-fill');
+  const label    = document.getElementById('progress-label');
+  const resultado = document.getElementById('pdf-resultado');
+
+  wrap.style.display = 'block';
+  resultado.style.display = 'none';
+
+  // Animar barra (simulado, la carga real es indeterminada)
+  let pct = 0;
+  const iv = setInterval(() => {
+    pct = Math.min(pct + Math.random() * 8, 85);
+    fill.style.width = pct + '%';
+    label.textContent = pct < 40 ? 'Leyendo PDF...' : pct < 70 ? 'Procesando con IA...' : 'Estructurando información...';
+  }, 400);
+
+  try {
+    const formData = new FormData();
+    formData.append('pdf', file);
+
+    const res  = await fetch(`${API}/api/empresa/pdf`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${session.token}` },
+      body: formData,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    clearInterval(iv);
+    fill.style.width = '100%';
+    label.textContent = '¡Procesado!';
+
+    setTimeout(() => {
+      wrap.style.display = 'none';
+      document.getElementById('pdf-preview').textContent = data.preview;
+      resultado.style.display = 'block';
+      document.getElementById('pdf-actual-card').style.display = 'block';
+      document.getElementById('pdf-nombre').textContent = file.name;
+      document.getElementById('step1-check').textContent = '✅';
+      document.getElementById('stat-pdf').textContent = '✅';
+      toast('¡Catálogo procesado! Tu bot ya conoce tu negocio 🎉', 'success');
+    }, 500);
+
+  } catch (err) {
+    clearInterval(iv);
+    wrap.style.display = 'none';
+    toast('Error: ' + err.message, 'error');
+  }
+}
+
+// ══ CONFIG ══════════════════════════════════════════════════
+async function guardarConfig() {
+  const body = {
+    nombreBot:     document.getElementById('cfg-nombre-bot').value.trim(),
+    saludo:        document.getElementById('cfg-saludo').value.trim(),
+    tono:          document.getElementById('cfg-tono').value,
+    mensajeHumano: document.getElementById('cfg-humano').value.trim(),
+  };
+
+  const btn = document.querySelector('#page-config .btn-save');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+
+  try {
+    await api('/api/empresa/config', 'PUT', body);
+    document.getElementById('step2-check').textContent = '✅';
+    toast('Configuración guardada ✅', 'success');
+  } catch (err) {
+    toast('Error: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Guardar configuración';
+  }
+}
+
+// ══ CONVERSACIONES ══════════════════════════════════════════
+async function cargarConversaciones() {
+  const list = document.getElementById('conv-list');
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mu)">Cargando...</div>';
+
+  try {
+    const data = await api('/api/empresa/conversaciones');
+    const convs = data.conversaciones;
+
+    document.getElementById('stat-convs').textContent = convs.length;
+
+    if (!convs.length) {
+      list.innerHTML = `<div class="empty-state"><div class="icon">💬</div><p>Aún no hay conversaciones.</p></div>`;
+      return;
+    }
+
+    list.innerHTML = convs.map(c => `
+      <div class="conv-item">
+        <div class="conv-num">📞 ${c.numero?.replace('@c.us','') || '—'}</div>
+        <div class="conv-bubble">
+          <div class="msg user">👤 ${esc(c.pregunta)}</div>
+          <div class="msg bot">🤖 ${esc(c.respuesta)}</div>
+        </div>
+        <div class="conv-time">${c.timestamp ? new Date(c.timestamp).toLocaleString('es-CO') : ''}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    list.innerHTML = `<div class="empty-state"><p>Error cargando conversaciones</p></div>`;
+  }
+}
+
+// ══ HELPERS ════════════════════════════════════════════════
+async function api(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${session.token}`,
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res  = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Error del servidor');
+  return data;
+}
+
+function showMsg(el, text, type) {
+  el.textContent = text;
+  el.className   = `auth-msg ${type}`;
+  el.style.display = 'block';
+}
+
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function esc(str = '') {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
