@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Essentials | Automatiza tu WhatsApp con IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#020818;
+  --pu:#6c3fff;
+  --pu2:#9b59f7;
+  --vi:#b48bff;
+  --ind:#3a1cff;
+  --wh:#fff;
+  --mu:rgba(255,255,255,.48);
+  --so:rgba(255,255,255,.75);
+  --cb:rgba(255,255,255,.04);
+  --cbr:rgba(255,255,255,.08);
+  --fd:'Syne',sans-serif;
+  --fb:'Outfit',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--wh);font-family:var(--fb);overflow-x:hidden}
+@media(pointer:fine){body{cursor:none}}
+
+/* CURSOR — desktop only */
+.cur,.cur-r{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%}
+.cur{width:10px;height:10px;background:var(--pu2);mix-blend-mode:screen}
+.cur-r{width:34px;height:34px;border:1px solid rgba(155,89,247,.5);z-index:9998;transition:width .2s,height .2s,border-color .2s}
+@media(pointer:coarse){.cur,.cur-r{display:none}}
+
+/* SCROLL BAR */
+#sb{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--ind),var(--pu2),var(--vi));z-index:9999;transform-origin:left;transform:scaleX(0);box-shadow:0 0 8px rgba(155,89,247,.7)}
+
+/* BG */
+.bg-m{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 55% at 70% 15%,rgba(58,28,255,.15) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 50% at 15% 85%,rgba(108,63,255,.1) 0%,transparent 60%)}
+
+/* STARS — canvas solo desktop */
+#st{position:fixed;inset:0;z-index:0;pointer-events:none}
+@media(max-width:860px){#st{display:none}}
+
+/* PARTICLES — solo desktop, CSS puro */
+.pts{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.pt{position:absolute;border-radius:50%;animation:ptUp linear infinite;opacity:0;will-change:transform,opacity}
+@keyframes ptUp{0%{opacity:0;transform:translateY(100vh) translateX(0)}10%{opacity:.5}90%{opacity:.05}100%{opacity:0;transform:translateY(-80px) translateX(var(--dx))}}
+@media(max-width:860px){.pts{display:none}}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 5%;display:flex;justify-content:space-between;align-items:center;background:rgba(2,8,24,.92);border-bottom:1px solid rgba(255,255,255,.05);animation:slideD .7s cubic-bezier(.16,1,.3,1) both}
+@media(min-width:861px){nav{backdrop-filter:blur(20px);background:rgba(2,8,24,.65)}}
+@keyframes slideD{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.logo{font-family:var(--fd);font-size:clamp(1.2rem,3vw,1.5rem);font-weight:800;color:var(--wh);text-decoration:none}
+.logo span{background-image:linear-gradient(135deg,var(--pu2),var(--vi));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding-bottom:.1em;display:inline-block}
+.nav-r{display:flex;gap:10px;align-items:center}
+.n-ghost{font-family:var(--fb);font-size:.78rem;font-weight:500;letter-spacing:.05em;color:var(--so);border:1px solid rgba(255,255,255,.13);padding:9px 20px;border-radius:8px;text-decoration:none;transition:all .25s;background:transparent}
+.n-ghost:hover{border-color:rgba(155,89,247,.6);background:rgba(108,63,255,.1);color:var(--wh)}
+.n-fill{font-family:var(--fb);font-size:.78rem;font-weight:600;letter-spacing:.05em;color:var(--wh);background:linear-gradient(135deg,var(--pu),var(--pu2));padding:9px 20px;border-radius:8px;text-decoration:none;border:none;box-shadow:0 0 18px rgba(108,63,255,.4);transition:all .25s}
+.n-fill:hover{transform:translateY(-1px);box-shadow:0 0 28px rgba(108,63,255,.65)}
+@media(max-width:600px){.n-ghost{display:none}}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;max-width:1200px;margin:0 auto;padding:clamp(90px,12vh,130px) 5% 80px;gap:48px;position:relative;z-index:1}
+@media(max-width:860px){.hero{grid-template-columns:1fr;text-align:center;padding-top:100px}.hero-r{order:-1}}
+
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(108,63,255,.12);border:1px solid rgba(155,89,247,.3);color:var(--vi);font-size:.7rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;padding:7px 16px;border-radius:100px;margin-bottom:28px;animation:bPulse 3s ease-in-out infinite}
+.badge .dot{width:6px;height:6px;border-radius:50%;background:var(--vi);animation:ping 1.5s ease-in-out infinite}
+@keyframes ping{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
+@keyframes bPulse{0%,100%{box-shadow:0 0 0 0 rgba(155,89,247,.2)}50%{box-shadow:0 0 0 6px rgba(155,89,247,0)}}
+
+.hero-l{animation:hL .9s .15s cubic-bezier(.16,1,.3,1) both}
+.hero-r{animation:hR .9s .25s cubic-bezier(.16,1,.3,1) both}
+@keyframes hL{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+@keyframes hR{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+
+h1{font-family:var(--fd);font-size:clamp(2.4rem,4.8vw,4.4rem);font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-bottom:24px}
+.gw{color:var(--wh)}
+
+/* ── GRADIENT TEXT — fix definitivo para descenders cortados ── */
+.gg,.stit .g,.sn,.pc-cur,.pc-amt,.ab-text h2 em,.fl span{
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  /* Truco: display:block en span fuerza al clip a respetar el alto real */
+  display:inline-block;
+  /* Extender el área del gradiente más allá del texto */
+  padding-bottom:.2em;
+  margin-bottom:-.2em;
+  /* line-height alto = más espacio para descenders */
+  line-height:1.4;
+  /* Forzar repaint en GPU para que el clip se recalcule */
+  transform:translateZ(0);
+}
+.gg{background-image:linear-gradient(135deg,#fff 0%,var(--vi) 45%,var(--pu2) 75%,var(--pu) 100%)}
+.stit .g{background-image:linear-gradient(135deg,var(--wh),var(--vi))}
+.sn{
+  background-image:linear-gradient(135deg,var(--wh),var(--vi));
+  font-family:var(--fd);font-size:clamp(1.8rem,3.5vw,2.5rem);
+  font-weight:800;letter-spacing:-.02em;margin-bottom:4px;
+}
+.pc-cur{
+  background-image:linear-gradient(135deg,var(--wh),var(--vi));
+  font-family:var(--fd);font-size:1.3rem;font-weight:700;
+}
+.pc-amt{
+  background-image:linear-gradient(135deg,var(--wh),var(--vi));
+  font-family:var(--fd);font-size:clamp(2.8rem,6vw,4rem);
+  font-weight:800;letter-spacing:-.04em;
+}
+.ab-text h2 em{background-image:linear-gradient(135deg,var(--pu2),var(--vi))}
+.fl span{background-image:linear-gradient(135deg,var(--pu2),var(--vi))}
+
+.hero-p{font-size:clamp(1rem,1.6vw,1.15rem);font-weight:300;color:var(--mu);line-height:1.8;max-width:500px;margin-bottom:40px}
+@media(max-width:860px){.hero-p{max-width:100%}}
+
+.acts{display:flex;gap:14px;flex-wrap:wrap}
+@media(max-width:860px){.acts{justify-content:center}}
+.bp{display:inline-flex;align-items:center;gap:9px;font-family:var(--fb);font-size:.9rem;font-weight:600;color:var(--wh);background:linear-gradient(135deg,var(--ind),var(--pu),var(--pu2));background-size:200% 200%;padding:15px 32px;border-radius:12px;text-decoration:none;box-shadow:0 8px 36px rgba(108,63,255,.45);transition:all .3s;animation:gf 3s ease infinite}
+@keyframes gf{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.bp:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(108,63,255,.65)}
+.bp .ar{transition:transform .3s}
+.bp:hover .ar{transform:translateX(4px)}
+.bs{display:inline-flex;align-items:center;gap:9px;font-family:var(--fb);font-size:.9rem;font-weight:500;color:var(--so);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:15px 32px;border-radius:12px;text-decoration:none;backdrop-filter:blur(8px);transition:all .3s}
+.bs:hover{background:rgba(255,255,255,.09);border-color:rgba(155,89,247,.4);color:var(--wh)}
+
+/* ── ORB CSS PURO — GPU acelerado, sin SVG animado ── */
+.orb-w{position:relative;width:clamp(240px,36vw,400px);height:clamp(240px,36vw,400px);display:flex;align-items:center;justify-content:center;margin:0 auto}
+
+/* Glow de fondo */
+.orb-glow{
+  position:absolute;inset:10%;border-radius:50%;
+  background:radial-gradient(circle at 38% 35%,rgba(180,139,255,.5) 0%,rgba(108,63,255,.35) 35%,rgba(58,28,255,.15) 65%,transparent 100%);
+  filter:blur(28px);
+  will-change:transform,opacity;
+  animation:gPulse 4s ease-in-out infinite;
+}
+@keyframes gPulse{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.12);opacity:1}}
+
+/* Esfera principal */
+.orb-ball{
+  position:relative;z-index:2;
+  width:62%;height:62%;border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 32%, rgba(220,190,255,.9) 0%, transparent 40%),
+    radial-gradient(circle at 60% 65%, rgba(58,28,255,.6) 0%, transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(108,63,255,.95) 0%, rgba(30,10,80,.8) 100%);
+  box-shadow:
+    0 0 40px rgba(108,63,255,.5),
+    0 0 80px rgba(108,63,255,.25),
+    inset 0 0 30px rgba(180,139,255,.15);
+  will-change:transform;
+  animation:orbF 6s ease-in-out infinite;
+}
+@keyframes orbF{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+
+/* Brillo superior */
+.orb-ball::before{
+  content:'';position:absolute;
+  top:12%;left:18%;width:38%;height:22%;
+  background:radial-gradient(ellipse,rgba(255,255,255,.45) 0%,transparent 70%);
+  border-radius:50%;transform:rotate(-20deg);
+}
+
+/* Anillos orbitales — CSS transform en lugar de SVG animateTransform */
+.orb-ring{
+  position:absolute;border-radius:50%;border:1px solid;
+  will-change:transform;
+  animation:rSpin linear infinite;
+}
+.orb-ring:nth-child(3){
+  inset:6%;
+  border-color:rgba(155,89,247,.35);
+  animation-duration:8s;
+  transform-origin:center;
+}
+.orb-ring:nth-child(4){
+  inset:0%;
+  border-color:rgba(108,63,255,.18);
+  animation-duration:13s;
+  animation-direction:reverse;
+}
+@keyframes rSpin{to{transform:rotate(360deg)}}
+
+/* Punto orbital — CSS en lugar de animateMotion SVG */
+.orb-dot{
+  position:absolute;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--vi);
+  box-shadow:0 0 12px 3px rgba(180,139,255,.7);
+  will-change:transform;
+  top:50%;left:50%;
+  margin:-4px 0 0 -4px;
+  animation:dotOrbit 8s linear infinite;
+  transform-origin:0 0;
+}
+.orb-dot:nth-child(5){animation-duration:8s;background:var(--vi)}
+.orb-dot:nth-child(6){animation-duration:12s;animation-delay:-4s;background:var(--pu2);width:6px;height:6px;margin:-3px 0 0 -3px}
+@keyframes dotOrbit{
+  0%  {transform:rotate(0deg)   translateX(var(--r,45%)) rotate(0deg)}
+  100%{transform:rotate(360deg) translateX(var(--r,45%)) rotate(-360deg)}
+}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);position:relative;z-index:1}
+@media(max-width:680px){.stats{grid-template-columns:1fr}}
+.sc{padding:clamp(28px,5vw,44px) clamp(20px,4vw,36px);display:flex;align-items:flex-start;gap:16px;background:rgba(255,255,255,.015);transition:background .3s}
+.sc:hover{background:rgba(108,63,255,.06)}
+.si{width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,rgba(108,63,255,.25),rgba(155,89,247,.15));border:1px solid rgba(155,89,247,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.sl{font-size:.88rem;font-weight:600;color:var(--wh);margin-bottom:5px}
+.sd{font-size:.8rem;color:var(--mu);font-weight:300;line-height:1.5}
+
+/* ── SECTIONS ── */
+.sec{max-width:1200px;margin:0 auto;padding:clamp(60px,9vw,100px) 5%;position:relative;z-index:1}
+.stag{display:inline-block;font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--pu2);margin-bottom:14px}
+.stit{font-family:var(--fd);font-size:clamp(1.9rem,3.8vw,3.2rem);font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-bottom:52px}
+.sub-p{font-size:.93rem;color:var(--mu);font-weight:300;max-width:520px;margin:0 auto 48px;text-align:center;line-height:1.7}
+
+/* ABOUT GRID */
+.ab-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,72px);align-items:center}
+@media(max-width:760px){.ab-grid{grid-template-columns:1fr}}
+.ab-text h2{font-family:var(--fd);font-size:clamp(1.7rem,3.2vw,2.6rem);font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-bottom:22px}
+.ab-text p{font-size:clamp(.88rem,1.4vw,1rem);color:var(--mu);font-weight:300;line-height:1.8;margin-bottom:18px}
+.quote{border-left:3px solid var(--pu2);padding:14px 18px;background:rgba(108,63,255,.07);border-radius:0 10px 10px 0;margin-top:24px}
+.quote p{font-size:.85rem;color:rgba(180,139,255,.85);font-style:italic}
+
+/* STEPS */
+.steps-list{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:18px;padding:24px 0;border-bottom:1px solid rgba(255,255,255,.06);transition:all .3s}
+.step:first-child{border-top:1px solid rgba(255,255,255,.06)}
+.step:hover{padding-left:6px}
+.s-num{font-family:var(--fd);font-size:2.2rem;font-weight:800;color:rgba(155,89,247,.2);line-height:1;min-width:42px;padding-top:2px}
+.step h4{font-size:.9rem;font-weight:600;color:var(--wh);margin-bottom:5px}
+.step p{font-size:.82rem;color:var(--mu);font-weight:300;line-height:1.6}
+
+/* FEATURES PREMIUM GRID */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:760px){.feat-grid{grid-template-columns:1fr}}
+.feat-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:clamp(24px,4vw,36px);position:relative;transition:all .35s cubic-bezier(.16,1,.3,1)}
+.feat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(108,63,255,.08),transparent);opacity:0;transition:opacity .35s;border-radius:20px;pointer-events:none}
+.feat-card:hover{transform:translateY(-5px);box-shadow:0 20px 50px rgba(108,63,255,.22);border-color:rgba(155,89,247,.28)}
+.feat-card:hover::before{opacity:1}
+.feat-icon{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:18px;border:1px solid rgba(255,255,255,.08)}
+.feat-card h4{font-family:var(--fd);font-size:clamp(.95rem,2vw,1.1rem);font-weight:700;color:var(--wh);margin-bottom:10px;line-height:1.4}
+.feat-card p{font-size:clamp(.82rem,1.2vw,.93rem);color:var(--mu);font-weight:300;line-height:1.7;margin-bottom:14px}
+.feat-tag{font-size:.74rem;font-weight:600;color:var(--pu2);letter-spacing:.03em}
+
+/* BENEFITS */
+.ben-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.07);outline:1px solid rgba(255,255,255,.07)}
+@media(max-width:760px){.ben-grid{grid-template-columns:1fr}}
+.bc{background:rgba(10,8,25,1);padding:clamp(24px,4vw,38px) clamp(20px,3vw,30px);transition:background .3s;position:relative;overflow:visible}
+.bc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--pu2),transparent);transform:scaleX(0);transform-origin:center;transition:transform .4s;overflow:hidden}
+.bc:hover{background:rgba(108,63,255,.07)}
+.bc:hover::after{transform:scaleX(1)}
+.bc-icon{font-size:1.6rem;margin-bottom:16px}
+.bc h4{font-family:var(--fd);font-size:clamp(.95rem,1.4vw,1.05rem);font-weight:700;color:var(--wh);margin-bottom:8px;line-height:1.4;overflow:visible}
+.bc p{font-size:clamp(.8rem,1.1vw,.9rem);color:var(--mu);font-weight:300;line-height:1.65}
+
+/* PRICING */
+.price-wrap{max-width:580px;margin:0 auto;padding:clamp(60px,9vw,100px) 5%;text-align:center;position:relative;z-index:1}
+.price-wrap .stag{display:block;margin-bottom:12px}
+.price-wrap .stit{margin-bottom:10px}
+.price-wrap>p{font-size:.88rem;color:var(--mu);margin-bottom:48px;font-weight:300}
+.pc{background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(155,89,247,.28);border-radius:26px;padding:clamp(52px,7vw,68px) clamp(24px,5vw,44px) clamp(36px,6vw,52px);position:relative;backdrop-filter:blur(16px);box-shadow:0 0 70px rgba(108,63,255,.1),0 0 0 1px rgba(255,255,255,.04) inset}
+.pc::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:55%;height:2px;background:linear-gradient(90deg,transparent,var(--pu2),transparent);border-radius:0 0 4px 4px}
+.pill{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--pu),var(--pu2));color:var(--wh);font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:5px 18px;border-radius:100px;box-shadow:0 4px 18px rgba(108,63,255,.5);white-space:nowrap}
+.plan-t{font-family:var(--fd);font-size:clamp(1.5rem,3vw,1.85rem);font-weight:800;color:var(--wh);margin-bottom:6px;line-height:1.2;padding-bottom:.06em}
+.psub{font-size:.82rem;color:var(--mu);margin-bottom:30px;font-weight:300}
+.pold{font-size:.9rem;color:rgba(255,255,255,.22);text-decoration:line-through;margin-bottom:3px}
+.prow{display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:6px}
+.pper{font-size:.85rem;color:var(--mu);margin-bottom:30px}
+.feats{list-style:none;text-align:left;border-top:1px solid rgba(255,255,255,.07);padding-top:24px;margin-bottom:30px}
+.feats li{display:flex;align-items:flex-start;gap:10px;font-size:.85rem;color:rgba(255,255,255,.82);font-weight:300;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.ck{width:18px;height:18px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,rgba(108,63,255,.4),rgba(155,89,247,.3));border:1px solid rgba(155,89,247,.4);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--vi);margin-top:1px}
+.cta{display:block;width:100%;font-family:var(--fb);font-size:.9rem;font-weight:600;letter-spacing:.04em;color:var(--wh);background:linear-gradient(135deg,var(--ind),var(--pu),var(--pu2));background-size:200% 200%;padding:17px;border-radius:13px;border:none;cursor:pointer;box-shadow:0 8px 28px rgba(108,63,255,.45);transition:all .3s;animation:gf 3s ease infinite}
+.cta:hover{transform:translateY(-2px);box-shadow:0 14px 44px rgba(108,63,255,.65)}
+
+/* FOOTER */
+footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.05);padding:36px 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.fl{font-family:var(--fd);font-size:1rem;font-weight:800;color:rgba(255,255,255,.28)}
+footer p{font-size:.72rem;color:rgba(255,255,255,.18)}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease}
+.rv.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<div class="cur" id="c"></div>
+<div class="cur-r" id="cr"></div>
+<div id="sb"></div>
+<div class="bg-m"></div>
+<canvas id="st"></canvas>
+<div class="pts" id="pts"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">Essentials<span>.</span></a>
+  <div class="nav-r">
+    <a href="#features" class="n-ghost">Cómo funciona</a>
+    <a href="#precios" class="n-fill">Ver Tarifas</a>
+    <a href="/dashboard.html" class="n-fill" style="background:rgba(255,255,255,.08);box-shadow:none;border:1px solid rgba(255,255,255,.13)">Iniciar sesión</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-l">
+    <div class="badge"><span class="dot"></span>IA activa 24/7 para tu negocio</div>
+    <h1>
+      <span class="gw">¿Cansado de perder ventas<br>por no responder a tiempo en</span><br><span class="gg">WhatsApp</span><span class="gw">?</span>
+    </h1>
+    <p class="hero-p">Automatiza tu atención al cliente con Inteligencia Artificial avanzada. Atiende 24/7, muestra tu catálogo, agenda citas y recibe métricas diarias de tu negocio — sin esfuerzo.</p>
+    <div class="acts">
+      <a href="#precios" class="bp">Activar mi Bot Ahora <span class="ar">→</span></a>
+      <a href="#features-premium" class="bs">Ver Funciones Pro ↓</a>
+    </div>
+  </div>
+  <div class="hero-r">
+    <div class="orb-w">
+      <div class="orb-glow"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-ball"></div>
+      <div class="orb-dot" style="--r:46%"></div>
+      <div class="orb-dot" style="--r:50%"></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="sc rv">
+    <div class="si">⚡</div>
+    <div>
+      <div class="sn">2 seg</div>
+      <div class="sl">Tiempo de Respuesta</div>
+      <div class="sd">Tu cliente recibe una respuesta precisa en menos de 2 segundos, sin importar la hora.</div>
+    </div>
+  </div>
+  <div class="sc rv" style="transition-delay:.1s">
+    <div class="si">🕐</div>
+    <div>
+      <div class="sn">24/7</div>
+      <div class="sl">Siempre Disponible</div>
+      <div class="sd">El bot atiende fines de semana, festivos y madrugadas. Nunca pierde una venta.</div>
+    </div>
+  </div>
+  <div class="sc rv" style="transition-delay:.2s">
+    <div class="si">📄</div>
+    <div>
+      <div class="sn">1 PDF</div>
+      <div class="sl">Para Entrenar la IA</div>
+      <div class="sd">Sube tu catálogo, menú o lista de precios y la IA aprende todo al instante.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT + STEPS -->
+<section class="sec" id="como-funciona">
+  <div class="ab-grid rv">
+    <div class="ab-text">
+      <h2>¿De qué se trata <em>Essentials</em>?</h2>
+      <p>En <strong>Essentials</strong> creamos asistentes virtuales inteligentes diseñados a la medida del comercio y los micro-negocios en Colombia.</p>
+      <p>Olvídate de los bots basados en menús rígidos de botones. Nuestra tecnología utiliza los modelos de lenguaje de Google para comprender el lenguaje humano de forma natural, respondiendo con la calidez y precisión que tu negocio exige.</p>
+      <div class="quote">
+        <p>"Una solución estética, rápida y potente para marcas de ropa, restaurantes, estéticas y servicios profesionales."</p>
+      </div>
+    </div>
+    <div class="steps-list">
+      <div class="step">
+        <div class="s-num">01</div>
+        <div><h4>Te registras en la plataforma</h4><p>Creas tu cuenta comercial en nuestra web en menos de un minuto.</p></div>
+      </div>
+      <div class="step">
+        <div class="s-num">02</div>
+        <div><h4>Subes la info de tu negocio</h4><p>Arrastras el PDF de tu menú, catálogo o lista de precios y configuras el tono del bot.</p></div>
+      </div>
+      <div class="step">
+        <div class="s-num">03</div>
+        <div><h4>Escaneas el código QR</h4><p>Vinculas tu WhatsApp escaneando el QR desde tu celular. El bot empezará a vender de inmediato.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNCIONES PREMIUM -->
+<section class="sec" id="features-premium" style="padding-top:0">
+  <div style="text-align:center">
+    <span class="stag">Funciones Exclusivas</span>
+    <h2 class="stit" style="margin-bottom:16px">Lo que nos hace<br><span class="g">diferentes</span></h2>
+    <p class="sub-p">No somos solo un bot de respuestas automáticas. Essentials es un empleado administrativo de tiempo completo para tu negocio.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card rv">
+      <div class="feat-icon" style="background:rgba(236,72,153,.1);border-color:rgba(236,72,153,.2)">📅</div>
+      <h4>Agendamiento Intuitivo y Calendario Integrado</h4>
+      <p>La IA conversa con el cliente, verifica la disponibilidad real de tu negocio y agenda citas, turnos o reservas directamente en tu calendario.</p>
+      <div class="feat-tag">⚡ Perfecto para: Spas de uñas, barberías, consultorios y restaurantes.</div>
+    </div>
+    <div class="feat-card rv" style="transition-delay:.12s">
+      <div class="feat-icon" style="background:rgba(234,179,8,.1);border-color:rgba(234,179,8,.2)">📊</div>
+      <h4>Resumen Diario e Insights Inteligentes</h4>
+      <p>Al final de cada jornada, la IA procesa todas las conversaciones y te envía un resumen analítico: qué productos preguntaron más, dudas frecuentes e intenciones de compra detectadas.</p>
+      <div class="feat-tag">⚡ Toma decisiones basadas en datos reales de tus chats.</div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="sec" style="padding-top:0">
+  <div style="text-align:center">
+    <span class="stag">Ventajas</span>
+    <h2 class="stit" style="margin-bottom:36px">Diseñado para<br><span class="g">multiplicar tus ingresos</span></h2>
+  </div>
+  <div class="ben-grid rv">
+    <div class="bc">
+      <div class="bc-icon">⚡</div>
+      <h4>Respuestas Inmediatas</h4>
+      <p>Tus clientes reciben datos exactos en 2 segundos. Olvídate de los chats acumulados y las demoras que cuestan ventas.</p>
+    </div>
+    <div class="bc">
+      <div class="bc-icon">📂</div>
+      <h4>Entrenamiento Simple</h4>
+      <p>La IA absorbe la información directo de tu PDF. Actualiza precios y productos cuando quieras en un clic.</p>
+    </div>
+    <div class="bc">
+      <div class="bc-icon">🔒</div>
+      <h4>Conexión Segura</h4>
+      <p>Manejas el asistente vinculándolo como un dispositivo normal, manteniendo la propiedad total de tu número.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<div class="price-wrap" id="precios">
+  <span class="stag">Precios</span>
+  <h2 class="stit">Tarifas<br><span class="g">Simples</span></h2>
+  <p>Invierte en automatización y libera el potencial de tu negocio.</p>
+  <div class="pc rv">
+    <span class="pill">✦ Oferta de Lanzamiento</span>
+    <div class="plan-t">Plan Emprendedor SaaS</div>
+    <div class="psub">Ideal para locales, marcas independientes y restaurantes</div>
+    <div class="pold">$100.000 COP / mes</div>
+    <div class="prow">
+      <span class="pc-cur">$</span>
+      <span class="pc-amt">50.000</span>
+    </div>
+    <div class="pper">COP / primer mes</div>
+    <ul class="feats">
+      <li><span class="ck">✓</span>Asistente de IA activo las 24 horas, los 7 días</li>
+      <li><span class="ck">✓</span>Agendamiento automático sincronizado con tu Calendario</li>
+      <li><span class="ck">✓</span>Panel con Resumen Diario e informes de analítica</li>
+      <li><span class="ck">✓</span>Entrenamiento mediante carga de PDF ilimitado</li>
+      <li><span class="ck">✓</span>Soporte técnico premium dedicado</li>
+    </ul>
+    <a href="/dashboard.html" class="cta" style="text-decoration:none;display:block;text-align:center">Comenzar mi Prueba Hoy →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fl">Essentials<span>.</span></div>
+  <p>&copy; 2026 Essentials · Supía, Caldas & Medellín, Colombia</p>
+</footer>
+
+<script>
+// ── CURSOR — solo mouse desktop ──
+const isMouse=window.matchMedia('(pointer:fine)').matches&&!('ontouchstart' in window);
+if(isMouse){
+  const c=document.getElementById('c'),cr=document.getElementById('cr');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;c.style.transform=`translate(${mx-5}px,${my-5}px)`});
+  (function loop(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cr.style.transform=`translate(${rx-17}px,${ry-17}px)`;requestAnimationFrame(loop)})();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cr.style.width='52px';cr.style.height='52px';cr.style.borderColor='rgba(155,89,247,.85)'});
+    el.addEventListener('mouseleave',()=>{cr.style.width='34px';cr.style.height='34px';cr.style.borderColor='rgba(155,89,247,.5)'});
+  });
+}
+
+// ── STARS — solo desktop ──
+const isMobile = window.innerWidth <= 860;
+if(!isMobile){
+  const cv=document.getElementById('st'),cx=cv.getContext('2d');
+  function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight}rsz();
+  window.addEventListener('resize',rsz,{passive:true});
+  const stars=Array.from({length:70},()=>({
+    x:Math.random()*cv.width,y:Math.random()*cv.height,
+    r:Math.random()*.8+.2,a:Math.random()*.6+.1,
+    ph:Math.random()*Math.PI*2,sp:Math.random()*.002+.001
+  }));
+  let raf;
+  function drawS(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{s.ph+=s.sp;const al=s.a*(0.5+0.5*Math.sin(s.ph));cx.beginPath();cx.arc(s.x,s.y,s.r,0,Math.PI*2);cx.fillStyle=`rgba(200,180,255,${al})`;cx.fill()});
+    raf=requestAnimationFrame(drawS);
+  }
+  document.addEventListener('visibilitychange',()=>document.hidden?cancelAnimationFrame(raf):drawS());
+  drawS();
+}
+
+// ── PARTICLES — solo desktop ──
+if(!isMobile){
+  const pw=document.getElementById('pts');
+  for(let i=0;i<10;i++){
+    const p=document.createElement('div');
+    const sz=Math.random()*2+.8;
+    p.style.cssText=`width:${sz}px;height:${sz}px;position:absolute;border-radius:50%;left:${Math.random()*100}%;--dx:${(Math.random()-.5)*120}px;animation:ptUp ${Math.random()*18+16}s ${-Math.random()*18}s linear infinite;opacity:0;background:rgba(${Math.random()>.5?'155,89,247':'108,63,255'},.55)`;
+    pw.appendChild(p);
+  }
+}
+
+// ── SCROLL PROGRESS ──
+const sb=document.getElementById('sb');
+window.addEventListener('scroll',()=>{sb.style.transform=`scaleX(${window.scrollY/(document.body.scrollHeight-window.innerHeight)})`},{passive:true});
+
+// ── REVEAL ──
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.1});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
